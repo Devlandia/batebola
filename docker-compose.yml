@@ -1,0 +1,39 @@
+version: '3.1'
+
+networks:
+  net:
+
+services:
+  db:
+    image: postgres:alpine
+    networks:
+      net:
+        aliases:
+          - postgres
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    volumes:
+      - expressjs_db_data:/var/lib/postgresql/data
+
+  app:
+    image: my-expressjs-app
+    build: .
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    depends_on:
+      - db
+    links:
+      - db
+    volumes:
+      - .:/var/app
+    networks:
+      net:
+        aliases:
+          - app
+
+volumes:
+  expressjs_db_data:
