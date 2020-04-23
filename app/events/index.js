@@ -14,6 +14,7 @@ const events  = {};
 io.on('connection', (socket) => {
   console.log('a user connected')
 
+  // Read all files from same dir except index
   fs.readdirSync(__dirname)
     .filter((file) => {
       return (file.indexOf('.') !== 0) &&
@@ -21,10 +22,8 @@ io.on('connection', (socket) => {
         (file.slice(-3) === '.js');
     })
     .forEach((file) => {
-      fullPath = path.join(__dirname, file)
-      myEvent = require(fullPath)
-      myEvent(socket)
-      //console.log(myEvent('foo', 'bar'))
+      // Require files as socket listeners
+      require(path.join(__dirname, file))(io, socket)
     });
 
 

@@ -1,15 +1,34 @@
+/**
+ * Get userId from cookies or create a brand new userId and store on cookies.
+ */
+function getOrCreateCookie(){
+  var cookie = JSON.parse(document.cookie || '{}')
+
+  if(cookie.userId){
+    return cookie.userId;
+  }
+  else{
+    var userId      = new Date().getTime();
+    document.cookie = JSON.stringify({ userId: userId })
+
+    return userId;
+  }
+}
+
+function refreshDeck(player, userId, deck){
+  var fieldId = player == userId ? '#myDeck' : '#otherDeck'
+
+  $(fieldId).html(deck)
+  console.log(JSON.parse(deck))
+}
+
 $(document).ready(function(){
-  var socket = io();
+  const socket = io();
+  const userId = getOrCreateCookie();
 
-  socket.emit('foo');
+  socket.emit('init game', userId);
 
-  socket.on('bar', function(param){
-    console.log('\n\n');
-    console.log('####################################################');
-    console.log('bar with '+ param)
-    console.log('####################################################');
-    console.log('\n\n');
-
-
-  });
+  socket.on('refresh deck', function(player, deck){
+    refreshDeck(player, userId, deck)
+  })
 });

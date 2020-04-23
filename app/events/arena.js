@@ -1,11 +1,22 @@
-module.exports = (socket) => {
-  socket.on('foo', () => {
-    console.log('\n\n');
-    console.log('####################################################');
-    console.log('foo')
-    console.log('####################################################');
-    console.log('\n\n');
+const models  = require('../models')
+const Player  = models['Player']
 
-    socket.emit('bar', 'param 1')
+module.exports = (io, socket) => {
+  socket.on('init game', (userId) => {
+    console.log(`Game started as ${userId}`)
+
+    const players = []
+    const positions = [
+      'goleiro', 'zagueiro', 'zagueiro', 'zagueiro', 'zagueiro', 'volante', 'volante',
+      'volante', 'atacante', 'atacante', 'atacante' ]
+
+    for(var i = 0; i < 11; i++){
+      players.push(Player.build({
+        name      : `Jogador ${i + 1}`,
+        position  : positions[i]
+      }))
+    }
+
+    io.emit('refresh deck', userId, JSON.stringify(players))
   })
 }

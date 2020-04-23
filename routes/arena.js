@@ -7,7 +7,7 @@ function viewPath(file){
 }
 
 router.get('/:id', function(req, res, next) {
-  res.sendFile(viewPath('index'))
+  res.sendFile(viewPath('arena'))
 });
 
 module.exports = router;
