@@ -4,10 +4,12 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const app     = require('./app/events')
+const server  = app.server;
 
-const app = express();
+const indexRouter = require('./routes/index');
+const arenaRouter = require('./routes/arena');
+// const usersRouter = require('./routes/users');
 
 app.use(logger('dev'));
 // parse application/json
@@ -19,7 +21,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/arena', arenaRouter);
+// app.use('/users', usersRouter);
+
+// Serve static files
+app.use('/assets', express.static('app/assets'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -37,8 +43,6 @@ app.use(function(err, req, res, next) {
   console.log(err.message);
   console.log('#############################################################');
 
-  console.log(err.message);
-
   // render the error page
   res.status(err.status || 500);
 
@@ -46,3 +50,4 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+module.exports.server = server;
