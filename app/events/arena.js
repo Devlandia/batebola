@@ -5,11 +5,13 @@ Array.prototype.sample = function(){
   return this[Math.floor(Math.random()*this.length)];
 }
 
-// create a hash with players.
-/// fill with userIds and return everything when keys.length == 2
 const players = {}
 
 module.exports = (io, socket) => {
+  /**
+   * Creates an array of players to informed userId
+   * When players has 2 entries, get a random player and gives tha ball to first defender of team.
+   */
   socket.on('init game', (userId) => {
 
     console.log(`Game started as ${userId}`)
@@ -17,10 +19,13 @@ module.exports = (io, socket) => {
     const positions = [ 'Goleiro', 'Zagueiro', 'Zagueiro', 'Zagueiro', 'Zagueiro',
       'Volante', 'Volante', 'Volante', 'Atacante', 'Atacante', 'Atacante' ]
 
+    // Initialize player team
     players[userId] = {
       team: []
     }
+    let currentPlayer
 
+    // build the team for informed userId
     for(var i = 0; i < 11; i++){
       players[userId].team.push(Player.build({
         name      : `Jogador ${i + 1}`,
@@ -33,14 +38,19 @@ module.exports = (io, socket) => {
       i += 2
     }
 
+    // Clear ownBall of all players and set it again.
+    for (var [key, value] of Object.entries(players)) {
+      for(var [k, v] of Object.entries(value.team)){
+        v.ownBall = false
+      }
+    }
     keys = Object.keys(players)
     if(keys.length == 2){
-      firstPlayer = keys.sample()
-      team        = players[firstPlayer].teams
+      currentPlayer = keys.sample()
 
-      console.log(team)
+      players[currentPlayer].team[1].ownBall = true
     }
 
-    io.emit('refresh deck', JSON.stringify(players))
+    io.emit('refresh deck', currentPlayer, JSON.stringify(players))
   })
 }
