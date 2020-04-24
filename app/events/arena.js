@@ -1,31 +1,44 @@
 const models  = require('../models')
 const Player  = models['Player']
 
+Array.prototype.sample = function(){
+  return this[Math.floor(Math.random()*this.length)];
+}
+
 // create a hash with players.
 /// fill with userIds and return everything when keys.length == 2
 const players = {}
 
 module.exports = (io, socket) => {
   socket.on('init game', (userId) => {
+
     console.log(`Game started as ${userId}`)
 
-    if(!(userId in players)){
-      const positions = [ 'goleiro', 'zagueiro', 'zagueiro', 'zagueiro', 'zagueiro',
-        'volante', 'volante', 'volante', 'atacante', 'atacante', 'atacante' ]
+    const positions = [ 'Goleiro', 'Zagueiro', 'Zagueiro', 'Zagueiro', 'Zagueiro',
+      'Volante', 'Volante', 'Volante', 'Atacante', 'Atacante', 'Atacante' ]
 
-      players[userId] = {
-        players: []
-      }
+    players[userId] = {
+      team: []
+    }
 
-      for(var i = 0; i < 11; i++){
-        players[userId].players.push(Player.build({
-          name      : `Jogador ${i + 1}`,
-          position  : positions[i]
-        }))
+    for(var i = 0; i < 11; i++){
+      players[userId].team.push(Player.build({
+        name      : `Jogador ${i + 1}`,
+        position  : positions[i],
+        ownBall   : false,
+        movements : []
+      }))
 
-        // TODO: Just for tests
-        i += 2
-      }
+      // TODO: Just for tests
+      i += 2
+    }
+
+    keys = Object.keys(players)
+    if(keys.length == 2){
+      firstPlayer = keys.sample()
+      team        = players[firstPlayer].teams
+
+      console.log(team)
     }
 
     io.emit('refresh deck', JSON.stringify(players))

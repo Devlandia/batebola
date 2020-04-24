@@ -41,8 +41,8 @@ $(document).ready(function(){
     data = JSON.parse(data)
 
     $.each(data, function(player, value){
-      //console.log(values.players)
-      refreshDeck(userId, player, value.players)
+      //console.log(values.team)
+      refreshDeck(userId, player, value.team)
     });
   })
 });
