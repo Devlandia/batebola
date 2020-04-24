@@ -15,11 +15,20 @@ function getOrCreateCookie(){
   }
 }
 
-function refreshDeck(player, userId, deck){
+function refreshDeck(userId, player, deck){
   var fieldId = player == userId ? '#myDeck' : '#otherDeck'
 
-  $(fieldId).html(deck)
-  console.log(JSON.parse(deck))
+  $(fieldId).html('');
+
+  $.each(deck, function(id, data){
+    element = $('<li>')
+    element.addClass('collection-item')
+    //element.text(`${data.name}: ${data.position}`)
+    element.append($('<h6>').text(data.name))
+    element.append($('<p>').text(data.position))
+
+    $(fieldId).append(element);
+  });
 }
 
 $(document).ready(function(){
@@ -28,7 +37,12 @@ $(document).ready(function(){
 
   socket.emit('init game', userId);
 
-  socket.on('refresh deck', function(player, deck){
-    refreshDeck(player, userId, deck)
+  socket.on('refresh deck', function(data){
+    data = JSON.parse(data)
+
+    $.each(data, function(player, value){
+      //console.log(values.players)
+      refreshDeck(userId, player, value.players)
+    });
   })
 });
