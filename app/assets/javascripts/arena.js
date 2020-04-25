@@ -82,6 +82,6 @@ $(document).ready(function(){
   })
 
   socket.on('message', function(msg){
-    alert(msg);
+    $('#messages').append($('<li>').text(msg))
   })
 });

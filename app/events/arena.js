@@ -136,15 +136,20 @@ module.exports = (io, socket) => {
       currentPlayer = keys.sample()
 
       ownBall(currentPlayer)
+      io.emit('message', 'Match started')
     }
 
     io.emit('refresh deck', userId, true, false, JSON.stringify(players))
   })
 
   socket.on('play', (userId) => {
+    let message;
+
     if(rollDice() > 5){
       passBallToNext(userId)
       players[userId].movements.push('Pass')
+
+      io.emit('message', 'Player has successufl passed the ball')
     }
     else{
       loseBall(userId)
@@ -152,6 +157,8 @@ module.exports = (io, socket) => {
         return item != userId;
       })[0]
       userId = opponentId
+
+      io.emit('message', 'Player failed to pass the ball')
     }
 
     io.emit('refresh deck', userId, allowPlay(userId), allowKick(userId), JSON.stringify(players))
@@ -159,10 +166,16 @@ module.exports = (io, socket) => {
 
   socket.on('kick', (userId) => {
     if(rollDice() > 6){
-      console.log('goal')
-      io.emit('message', 'Goal!');
+      io.emit('message', 'Gol!');
+
+      // TODO: Create and increase a score board.
+    }
+    else{
+      io.emit('message', 'Chutou para fora!');
     }
 
     loseBall(userId)
+
+    io.emit('refresh deck', userId, true, false, JSON.stringify(players))
   })
 }
