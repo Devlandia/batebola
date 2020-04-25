@@ -19,16 +19,23 @@ function buildTeam(userId){
 
   // build the team for informed userId
   for(var i = 0; i < 11; i++){
-    players[userId].team.push(Player.build({
+    // TODO: Use player model instad of this object
+    players[userId].team.push({
       name      : `Jogador ${i + 1}`,
       position  : positions[i],
       ownBall   : false,
-      movements : []
-    }))
+    })
 
     // TODO: Just for tests
     i += 2
   }
+}
+
+/**
+ * Get a randomic number between 1 ~ 10
+ */
+function rollDice(){
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].sample()
 }
 
 /**
@@ -47,11 +54,67 @@ function clearOwnBall(){
  * Clear all player movements.
  */
 function ownBall(userId){
-  players[userId].team[1].ownBall = true
+  players[userId].team[0].ownBall = true
 
   for (var [player, values] of Object.entries(players)) {
     player.movements = []
   }
+}
+
+/**
+ * Returns the index of ball owner on teams array.
+ */
+function ballOwner(){
+  for (var [key, value] of Object.entries(players)) {
+    for(var [k, v] of Object.entries(value.team)){
+      if(v.ownBall){
+        return k
+      }
+    }
+  }
+}
+
+function passBallToNext(userId){
+  current = ballOwner()
+  next    = parseInt(current) + 1
+
+  players[userId].team[current].ownBall = false
+  players[userId].team[next].ownBall    = true
+}
+
+/**
+ * Returns the id of opponent.
+ */
+function opponentId(userId){
+}
+
+/**
+ * Gives the ball to opponent.
+ * Clear all movements.
+ */
+function loseBall(userId){
+  opponentId = Object.keys(players).filter((item) => {
+    return item != userId;
+  })[0]
+
+  clearOwnBall()
+  ownBall(opponentId)
+
+  for (var [player, values] of Object.entries(players)) {
+    player.movements = []
+  }
+}
+
+function allowPlay(userId){
+  owner = ballOwner()
+
+  return owner < 3;
+}
+
+function allowKick(userId){
+  owner = ballOwner()
+
+  return owner > 2;
 }
 
 module.exports = (io, socket) => {
@@ -75,9 +138,31 @@ module.exports = (io, socket) => {
       ownBall(currentPlayer)
     }
 
-    io.emit('refresh deck', userId, JSON.stringify(players))
+    io.emit('refresh deck', userId, true, false, JSON.stringify(players))
   })
 
-  socket.on('movement', function(){
+  socket.on('play', (userId) => {
+    if(rollDice() > 5){
+      passBallToNext(userId)
+      players[userId].movements.push('Pass')
+    }
+    else{
+      loseBall(userId)
+      opponentId = Object.keys(players).filter((item) => {
+        return item != userId;
+      })[0]
+      userId = opponentId
+    }
+
+    io.emit('refresh deck', userId, allowPlay(userId), allowKick(userId), JSON.stringify(players))
+  })
+
+  socket.on('kick', (userId) => {
+    if(rollDice() > 6){
+      console.log('goal')
+      io.emit('message', 'Goal!');
+    }
+
+    loseBall(userId)
   })
 }

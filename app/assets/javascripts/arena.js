@@ -43,29 +43,45 @@ $(document).ready(function(){
 
   socket.emit('init game', userId);
 
+  $('#play').click(function(){
+    socket.emit('play', userId);
+  });
+
+  $('#kick').click(function(){
+    socket.emit('kick', userId);
+  });
+
   /**
    * Build the Deck
    * Update team field with all players
    * Show play button to currentUser and hide to opponent.
    */
-  socket.on('refresh deck', function(currentPlayer, data){
+  socket.on('refresh deck', function(currentPlayer, allowPlay, allowKick, data){
     data = JSON.parse(data)
 
-    $.each(data, function(player, value){
-      // Fill input with my players
-      if(player == userId){
-        $('#team').val(JSON.stringify(value.team))
+    $('#play').prop('disabled', true)
+    $('#kick').prop('disabled', true)
+
+    console.log(currentPlayer, userId)
+
+    // enable play button to current user
+    if(currentPlayer == userId){
+      if(allowPlay){
+        $('#play').prop('disabled', false)
       }
 
-      // enable play button to current user
-      if(currentPlayer == userId){
-        $('#play').show()
+      if(data[currentPlayer].movements.length > 1 && allowKick){
+        $('#kick').prop('disabled', false)
       }
-      else{
-        $('#play').hide()
-      }
+    }
+
+    $.each(data, function(player, value){
 
       refreshDeck(userId, player, value.team)
     });
+  })
+
+  socket.on('message', function(msg){
+    alert(msg);
   })
 });
