@@ -9,38 +9,6 @@ $ cp .env-sample .env
 $ docker-compose up
 ```
 
-## cURL requests
-
-Create a new user
-```
-$ curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"email":"rodrigovdb@gmail.com","password":"rapadura"}' -X POST http://localhost:3000/users
-```
-
-Get users
-```
-$ curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET http://localhost:3000/users
-```
-
-Get an user by id
-```
-$ curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET http://localhost:3000/users/1
-```
-
-Update an user
-```
-$ curl -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"email":"rodrigo@rockalenha.com.br"}' -X PUT http://localhost:3000/users/1
-```
-
-Delete an user
-```
-$ curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE http://localhost:3000/users/1
-```
-
-Authenticate an user
-```
-$ curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"email":"rodrigovdb@gmail.com","password":"rapadura"}' -X POST http://localhost:3000/users/authenticate
-```
-
 # Developing
 
 start nodemon service
@@ -58,6 +26,20 @@ running tests
 $ npm test
 ```
 
+# Database connection
+
+Database connection is turned out. In order to turn it on, edit `bin/www` and uncomment line 15:
+```
+//models.sequelize.sync().then(function() {
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
+//});
+```
+
 # References
 
 * [Express with PostrgeSQL](https://expressjs.com/en/guide/database-integration.html#postgresql)
@@ -65,6 +47,7 @@ $ npm test
 * [Express Migrations](https://sequelize.readthedocs.io/en/rtd/docs/migrations/)
 * [Tests](https://medium.com/@hdeodato/teste-autom%C3%A1tico-de-api-rest-usando-com-node-js-mocha-chai-6aec4613d100)
 * [Useful Tools](https://medium.com/london-nodejs/useful-tools-for-your-node-js-projects-20fd1f7c860a)
+* [Socket.io](https://socket.io/)
 
 ## For Tests
 * [Mocha](https://mochajs.org/) is a test framework.
