@@ -6,6 +6,7 @@ Array.prototype.sample = function(){
 }
 
 const players = {}
+const score   = {}
 
 function buildTeam(userId){
   const positions = [ 'Goleiro', 'Zagueiro', 'Zagueiro', 'Zagueiro', 'Zagueiro',
@@ -16,6 +17,7 @@ function buildTeam(userId){
     team      : [],
     movements : []
   }
+  score[userId] = 0
 
   // build the team for informed userId
   for(var i = 0; i < 11; i++){
@@ -137,6 +139,7 @@ module.exports = (io, socket) => {
 
       ownBall(currentPlayer)
       io.emit('message', 'Match started')
+      io.emit('refresh score', JSON.stringify(score))
     }
 
     io.emit('refresh deck', userId, true, false, JSON.stringify(players))
@@ -168,13 +171,15 @@ module.exports = (io, socket) => {
     if(rollDice() > 6){
       io.emit('message', 'Gol!');
 
-      // TODO: Create and increase a score board.
+      score[userId] += 1
+      io.emit('refresh score', JSON.stringify(score))
     }
     else{
       io.emit('message', 'Chutou para fora!');
     }
 
     loseBall(userId)
+    userId = opponentId
 
     io.emit('refresh deck', userId, true, false, JSON.stringify(players))
   })

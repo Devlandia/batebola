@@ -62,8 +62,6 @@ $(document).ready(function(){
     $('#play').prop('disabled', true)
     $('#kick').prop('disabled', true)
 
-    console.log(currentPlayer, userId)
-
     // enable play button to current user
     if(currentPlayer == userId){
       if(allowPlay){
@@ -81,7 +79,21 @@ $(document).ready(function(){
     });
   })
 
+  socket.on('refresh score', function(score){
+    score = JSON.parse(score)
+
+    $.each(score, function(player, value){
+      if(player == userId){
+        $('#myScore').html(value)
+      }
+      else{
+        $('#otherScore').html(value)
+      }
+    });
+  })
+
   socket.on('message', function(msg){
-    $('#messages').append($('<li>').text(msg))
+    console.log(msg)
+    //$('#messages').append($('<li>').text(msg))
   })
 });

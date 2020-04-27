@@ -21,19 +21,38 @@
     <div class="row">
       <div class="col s12">
         <div class="row">
+          <div class="col s12 center">
+            Score
+          </div>
+        </div>
+
+        <div class="row">
           <div class="col s4">
-            <h4>My team</h4>
+            <h4 style="text-align: right">My Team</h4>
+          </div>
+
+          <div class="col s4 center">
+            <h4>
+              <span id="myScore">0</span> X <span id="otherScore">0</span>
+            </h4>
+          </div>
+
+          <div class="col s4">
+            <h4>Opponent's team</h4>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col s4">
             <ul id="myDeck" class="collection"></ul>
           </div>
 
           <div class="col s4">
             <ul id="messages">
-              <h4 class="center">Narração</h4>
             </ul>
           </div>
 
           <div class="col s4">
-            <h4 style="text-align: right">Opponent's team</h4>
             <ul id="otherDeck" class="collection"> </ul>
           </div>
         </div>
@@ -50,7 +69,6 @@
             <button class="btn light-green" id="kick" disabled="disabled">Kick</button>
           </div>
         </div>
-      </div>
     </div>
 
     <!--Materialize JavaScript at end of body for optimized loading -->
