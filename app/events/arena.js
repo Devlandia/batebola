@@ -32,6 +32,7 @@ class Player {
    * @return true if success, false if failure.
    */
   passBallToNext(){
+    // TODO: Just for tests
     if(rollDice() < 3){
       return false;
     }
@@ -43,7 +44,6 @@ class Player {
       this.team[next].ownBall     = true
 
       if(next == this.team.length - 1){
-        console.log('Aqui, inside kick check')
         this.allowPass  = false;
         this.allowKick  = true;
       }
@@ -53,6 +53,7 @@ class Player {
   }
 
   kick(){
+    // TODO: Just for tests
     return (rollDice() < 3)
   }
 
@@ -83,7 +84,7 @@ class Player {
 
      for(var i = 0; i < 11; i++){
        this.team.push({
-         name      : `${this.id} - ${i + 1}`,
+         name      : `Player ${i + 1}`,
          position  : positions[i],
          ownBall   : false,
        })
