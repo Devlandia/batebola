@@ -1,186 +1,249 @@
-const models  = require('../models')
-const Player  = models['Player']
-
-Array.prototype.sample = function(){
-  return this[Math.floor(Math.random()*this.length)];
-}
-
-const players = {}
-const score   = {}
-
-function buildTeam(userId){
-  const positions = [ 'Goleiro', 'Zagueiro', 'Zagueiro', 'Zagueiro', 'Zagueiro',
-    'Volante', 'Volante', 'Volante', 'Atacante', 'Atacante', 'Atacante' ]
-
-  // Initialize player team
-  players[userId] = {
-    team      : [],
-    movements : []
-  }
-  score[userId] = 0
-
-  // build the team for informed userId
-  for(var i = 0; i < 11; i++){
-    // TODO: Use player model instad of this object
-    players[userId].team.push({
-      name      : `Jogador ${i + 1}`,
-      position  : positions[i],
-      ownBall   : false,
-    })
-
-    // TODO: Just for tests
-    i += 2
-  }
-}
-
 /**
- * Get a randomic number between 1 ~ 10
+ * Roll 1 d10
  */
 function rollDice(){
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].sample()
 }
 
 /**
- * Set ownBall of all players from all teams as false.
+ * Gives a random element from an array
  */
-function clearOwnBall(){
-  for (var [key, value] of Object.entries(players)) {
-    for(var [k, v] of Object.entries(value.team)){
-      v.ownBall = false
+Array.prototype.sample = function(){
+  return this[Math.floor(Math.random()*this.length)];
+}
+
+class Player {
+  constructor(id, name) {
+    this.id         = id;
+    this.name       = name;
+    this.team       = [];
+    this.movements  = [];
+    this.ownBall    = false;
+    this.allowPass  = false;
+    this.allowKick  = false;
+
+    this._initializeTeam();
+  }
+
+  /**
+   * Try to pass the ball to the next player, rolling 1d10.
+   * If success, set player with ownBall property to next index on array.
+   *
+   * @return true if success, false if failure.
+   */
+  passBallToNext(){
+    //if(rollDice() < 3){
+    if(false){
+      return false;
+    }
+    else {
+      var current = this._ballOwnerIndex()
+      var next    = current + 1
+
+      this.team[current].ownBall  = false
+      this.team[next].ownBall     = true
+
+      if(next == this.team.length - 1){
+        console.log('Aqui, inside kick check')
+        this.allowPass  = false;
+        this.allowKick  = true;
+      }
+
+      return true;
     }
   }
-}
 
-/**
- * Gives the ball to a team.
- * Clear all player movements.
- */
-function ownBall(userId){
-  players[userId].team[0].ownBall = true
-
-  for (var [player, values] of Object.entries(players)) {
-    player.movements = []
+  kick(){
+    //if(rollDice() < 3){
+    if(false){
+      return false
+    }
+    else {
+      return true
+    }
   }
-}
 
-/**
- * Returns the index of ball owner on teams array.
- */
-function ballOwner(){
-  for (var [key, value] of Object.entries(players)) {
-    for(var [k, v] of Object.entries(value.team)){
-      if(v.ownBall){
-        return k
+  loseBall(){
+    this.ownBall    = false;
+    this.allowPass  = false;
+    this.allowKick  = false;
+
+    for(var [idx, player] of Object.entries(this.team)){
+      player.ownBall = false
+    }
+  }
+
+  wonBall(){
+    this.movements = []
+
+    this.ownBall    = true;
+    this.allowPass  = true;
+    this.team[0].ownBall = true;
+  }
+
+  /**
+   * Generate random players to user team.
+   */
+  _initializeTeam(){
+    const positions = [ 'Goleiro', 'Zagueiro', 'Zagueiro', 'Zagueiro', 'Zagueiro',
+      'Volante', 'Volante', 'Volante', 'Atacante', 'Atacante', 'Atacante' ]
+
+     for(var i = 0; i < 11; i++){
+       this.team.push({
+         name      : `${this.id} - ${i + 1}`,
+         position  : positions[i],
+         ownBall   : false,
+       })
+
+       // TODO: Just for tests
+       i += 2
+     }
+  }
+
+  /**
+   * Gives the index of players array with ownBall = true.
+   *
+   * @return int
+   */
+  _ballOwnerIndex(){
+    for(var [idx, player] of Object.entries(this.team)){
+      if(player.ownBall){
+        return parseInt(idx);
       }
     }
   }
+
 }
 
-function passBallToNext(userId){
-  current = ballOwner()
-  next    = parseInt(current) + 1
+class Arena {
+  constructor(id) {
+    this.id       = id;
+    this.started  = false;
+    this.finished = false;
+    this.score    = {};
+    this.players  = {};
+  }
 
-  players[userId].team[current].ownBall = false
-  players[userId].team[next].ownBall    = true
-}
+  isReadyToStart(){
+    var keys = Object.keys(this.players)
 
-/**
- * Returns the id of opponent.
- */
-function opponentId(userId){
-}
+    return keys.length == 2;
+  }
 
-/**
- * Gives the ball to opponent.
- * Clear all movements.
- */
-function loseBall(userId){
-  opponentId = Object.keys(players).filter((item) => {
-    return item != userId;
-  })[0]
+  addPlayer(userId, name){
+    if(this._allowNewMembers()){
+      this.players[userId]  = new Player(userId, name)
+      this.score[userId]    = 0
 
-  clearOwnBall()
-  ownBall(opponentId)
+      if(this._firstPlayer() == userId){
+        this.players[userId].wonBall()
+      }
 
-  for (var [player, values] of Object.entries(players)) {
-    player.movements = []
+      if(this.isReadyToStart()){
+        this.started = true;
+      }
+    }
+    else{
+      throw 'This arena already has 2 players'
+    }
+  }
+
+  swapBallOwner(){
+    for(var [idx, player] of Object.entries(this.players)){
+      if(player.ownBall){
+        player.ownBall = false
+        player.loseBall()
+      }
+      else{
+        player.ownBall = true
+        player.wonBall()
+      }
+    }
+  }
+
+  computeGoal(userId){
+    this.score[userId] += 1
+
+    if(this.score[userId] > 4){
+      this.finished = true;
+    }
+  }
+
+  serialize(){
+    return JSON.stringify(this);
+  }
+
+  _allowNewMembers(){
+    var keys = Object.keys(this.players)
+
+    return keys.length < 2;
+  }
+
+  _firstPlayer(){
+    return Object.keys(this.players)[0];
   }
 }
 
-function allowPlay(userId){
-  owner = ballOwner()
-
-  return owner < 3;
-}
-
-function allowKick(userId){
-  owner = ballOwner()
-
-  return owner > 2;
-}
+const arenas = {}
 
 module.exports = (io, socket) => {
   /**
-   * Creates an array of players to informed userId
-   * When players has 2 entries, get a random player and gives tha ball to first defender of team.
+   * Join to arena, if it is available to receive a new player;
+   * Emit signal with serialized teams.
    */
-  socket.on('init game', (userId) => {
-    console.log(`Game started as ${userId}`)
+  socket.on('join game', (arenaId, userId, userName) => {
+    console.log(`Joined to arena ${arenaId} as ${userId}`)
 
-    let currentPlayer
+    // Create arena if it does not exist
+    let arena;
+    if(!arenas[arenaId]){
+      arenas[arenaId] = new Arena(arenaId)
+    }
+    arena = arenas[arenaId]
 
-    buildTeam(userId) // creates the team for each user
-    clearOwnBall()    // set all players as non owner
-
-    // pick one player to start the match.
-    keys = Object.keys(players)
-    if(keys.length == 2){
-      currentPlayer = keys.sample()
-
-      ownBall(currentPlayer)
-      io.emit('message', 'Match started')
-      io.emit('refresh score', JSON.stringify(score))
+    // try to add a player
+    try{
+      arena.addPlayer(userId, userName)
+    }
+    catch(err){
+      console.log(err.message);
+      io.emit('fatal error', err);
     }
 
-    io.emit('refresh deck', userId, true, false, JSON.stringify(players))
+    msg = (arena.isReadyToStart()) ? "Ready, let's play" : "Waiting for an opponent"
+    io.emit('message', arena.id, msg)
+
+    io.emit('refresh deck', arena.serialize())
   })
 
-  socket.on('play', (userId) => {
-    let message;
+  socket.on('play', (arenaId, userId) => {
+    var arena   = arenas[arenaId]
+    var player  = arena.players[userId]
+    var result  = player.passBallToNext()
 
-    if(rollDice() > 5){
-      passBallToNext(userId)
-      players[userId].movements.push('Pass')
-
-      io.emit('message', 'Player has successufl passed the ball')
-    }
-    else{
-      loseBall(userId)
-      opponentId = Object.keys(players).filter((item) => {
-        return item != userId;
-      })[0]
-      userId = opponentId
-
-      io.emit('message', 'Player failed to pass the ball')
+    if(!result){
+      arena.swapBallOwner()
     }
 
-    io.emit('refresh deck', userId, allowPlay(userId), allowKick(userId), JSON.stringify(players))
+    io.emit('refresh deck', arena.serialize())
   })
 
-  socket.on('kick', (userId) => {
-    if(rollDice() > 6){
-      io.emit('message', 'Gol!');
+  socket.on('kick', (arenaId, userId) => {
+    var arena   = arenas[arenaId]
+    var player  = arena.players[userId]
+    var result  = player.kick()
 
-      score[userId] += 1
-      io.emit('refresh score', JSON.stringify(score))
+    if(result){
+      arena.computeGoal(userId)
+      io.emit('message', arena.id, 'Gol!')
     }
     else{
-      io.emit('message', 'Chutou para fora!');
+      io.emit('message', arena.id, 'Chutou pra fora!')
     }
 
-    loseBall(userId)
-    userId = opponentId
+    arena.swapBallOwner()
 
-    io.emit('refresh deck', userId, true, false, JSON.stringify(players))
+    io.emit('refresh deck', arena.serialize())
+
   })
 }
