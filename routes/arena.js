@@ -2,12 +2,8 @@ const express = require('express');
 const router  = express.Router();
 const path    = require('path');
 
-function viewPath(file){
-  return path.join(`${__dirname}/../app/views/${file}.html`)
-}
-
 router.get('/:id', function(req, res, next) {
-  res.sendFile(viewPath('arena'))
+  res.render('arena', { arenaId: req.params.id })
 });
 
 module.exports = router;
