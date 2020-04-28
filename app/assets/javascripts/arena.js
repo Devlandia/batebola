@@ -64,6 +64,7 @@ $(document).ready(function(){
     $('#play').prop('disabled', true)
     $('#kick').prop('disabled', true)
 
+    // refresh deck and handle buttons play and kick
     $.each(arena.players, function(playerId, player){
       nameField = (playerId == userId) ? '#myName' : '#otherName'
       $(nameField).html(player.name)
@@ -79,12 +80,21 @@ $(document).ready(function(){
       }
     });
 
+    // handle finished matches
+    if(arena.finished){
+      $('#actionButtons').hide();
+      $('#finishedMatch').show();
+    }
+
+    // refresh scoreboard
     $.each(arena.score, function(playerId, value){
       if(playerId == userId){
         $('#myScore').html(value)
       }
       else{
         $('#otherScore').html(value)
+        res = (arena.winner == userId) ? 'won' : 'lose'
+        $('#matchResult').html(res)
       }
     });
   })

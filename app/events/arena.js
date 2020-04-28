@@ -32,8 +32,7 @@ class Player {
    * @return true if success, false if failure.
    */
   passBallToNext(){
-    //if(rollDice() < 3){
-    if(false){
+    if(rollDice() < 3){
       return false;
     }
     else {
@@ -54,13 +53,7 @@ class Player {
   }
 
   kick(){
-    //if(rollDice() < 3){
-    if(false){
-      return false
-    }
-    else {
-      return true
-    }
+    return (rollDice() < 3)
   }
 
   loseBall(){
@@ -120,6 +113,7 @@ class Arena {
     this.id       = id;
     this.started  = false;
     this.finished = false;
+    this.winner   = null;
     this.score    = {};
     this.players  = {};
   }
@@ -164,8 +158,9 @@ class Arena {
   computeGoal(userId){
     this.score[userId] += 1
 
-    if(this.score[userId] > 4){
+    if(this.score[userId] > 2){
       this.finished = true;
+      this.winner = userId;
     }
   }
 
