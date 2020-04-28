@@ -17,7 +17,11 @@ app.use(express.json());
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'app/assets')));
+
+// view settings
+app.set('view engine', 'ejs')
+app.set('views', process.cwd() + '/app/views')
 
 // Routes
 app.use('/', indexRouter);
