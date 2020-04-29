@@ -17,6 +17,7 @@ function getOrCreateCookie(){
 
 /**
  * Clear the player deck and built it again.
+ * If userId is the same of player, mount deck as mine. Else, as other.
  */
 function refreshDeck(userId, player, deck){
   var fieldId = player == userId ? '#myDeck' : '#otherDeck'
@@ -37,63 +38,90 @@ function refreshDeck(userId, player, deck){
   });
 }
 
+function arenaId(){
+  return $('#arenaId').val();
+}
+
 $(document).ready(function(){
-  const socket = io();
-  const userId = getOrCreateCookie();
+  const socket    = io();
+  const userId    = getOrCreateCookie();
+  const userName  = 'User Name';
 
-  socket.emit('init game', userId);
-
-  $('#play').click(function(){
-    socket.emit('play', userId);
-  });
-
-  $('#kick').click(function(){
-    socket.emit('kick', userId);
-  });
+  socket.emit('join game', arenaId(), userId, userName);
 
   /**
    * Build the Deck
    * Update team field with all players
    * Show play button to currentUser and hide to opponent.
    */
-  socket.on('refresh deck', function(currentPlayer, allowPlay, allowKick, data){
-    data = JSON.parse(data)
+  socket.on('refresh deck', function(arena){
+    arena = JSON.parse(arena)
+
+    if(arena.id != arenaId()){
+      return;
+    }
 
     $('#play').prop('disabled', true)
     $('#kick').prop('disabled', true)
 
-    // enable play button to current user
-    if(currentPlayer == userId){
-      if(allowPlay){
+    // refresh deck and handle buttons play and kick
+    $.each(arena.players, function(playerId, player){
+      nameField = (playerId == userId) ? '#myName' : '#otherName'
+      $(nameField).html(player.name)
+
+      refreshDeck(userId, playerId, player.team)
+
+      if(player.id == userId && player.allowPass && arena.started){
         $('#play').prop('disabled', false)
       }
 
-      if(data[currentPlayer].movements.length > 1 && allowKick){
+      if(player.id == userId && player.allowKick){
         $('#kick').prop('disabled', false)
       }
+    });
+
+    // handle finished matches
+    if(arena.finished){
+      $('#actionButtons').hide();
+      $('#finishedMatch').show();
     }
 
-    $.each(data, function(player, value){
-
-      refreshDeck(userId, player, value.team)
-    });
-  })
-
-  socket.on('refresh score', function(score){
-    score = JSON.parse(score)
-
-    $.each(score, function(player, value){
-      if(player == userId){
+    // refresh scoreboard
+    $.each(arena.score, function(playerId, value){
+      if(playerId == userId){
         $('#myScore').html(value)
       }
       else{
         $('#otherScore').html(value)
+        res = (arena.winner == userId) ? 'won' : 'lose'
+        $('#matchResult').html(res)
       }
     });
   })
 
-  socket.on('message', function(msg){
-    console.log(msg)
-    //$('#messages').append($('<li>').text(msg))
+  /**
+   * Send play signal.
+   */
+  $('#play').click(function(){
+    socket.emit('play', arenaId(), userId);
+  });
+
+  /**
+   * Send kick signal
+   */
+  $('#kick').click(function(){
+    socket.emit('kick', arenaId(), userId);
+  });
+
+  socket.on('message', function(arena, msg){
+    if(arena != arenaId()){
+      return;
+    }
+
+    $('#messages').append($('<li>').text(msg))
   })
+
+  socket.on('fatal error', function(msg){
+    console.log('fatal error: ', msg);
+  });
 });
