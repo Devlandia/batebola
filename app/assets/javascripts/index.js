@@ -1,17 +1,17 @@
-
 function joinArena(){
-  var field   = $('#arenaId');
-  var arenaId = field.val().trim();
+  form = $('#formJoinArena')
 
-  if(field.is(':valid')){
-    location.href = `arena/${arenaId}`;
+  if(form.is(':valid')){
+    form.submit();
   }
 }
 
 function createArena(){
-  var arenaId = new Date().getTime();
+  form = $('#formCreateArena')
 
- location.href = `arena/${arenaId}`;
+  if(form.is(':valid')){
+    form.submit();
+  }
 }
 
 $(document).ready(function(){

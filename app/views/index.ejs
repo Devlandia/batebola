@@ -29,29 +29,49 @@
 
         <div id="join" class="col s12">
           <div class="card">
-            <div class="card-content">
-              <div class="row">
-                <div class="input-field col s12">
-                  <input type="text" id="arenaId" class="validate" required pattern="\d+" placeholder="Arena #ID number" />
-                  <label for="name">Arena #ID</label>
-                  <span id="arenaMessage" class="helper-text" data-error="Invalid" data-success=""></span>
+            <form id="formJoinArena" name="formJoinArena" action="/arena/join" method="POST">
+              <div class="card-content">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input type="text" id="joinUsername" name="username" class="validate" required placeholder="Your name / nickname" />
+                    <label for="name">Name / Nickname</label>
+                    <span id="joinUsernameMessage" class="helper-text" data-error="Invalid" data-success=""></span>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input type="text" id="joinArenaId" name="arenaId" class="validate" required pattern="\d+" placeholder="Arena #ID number" />
+                    <label for="name">Arena #ID</label>
+                    <span id="arenaMessage" class="helper-text" data-error="Invalid" data-success=""></span>
+                  </div>
+                </div>
+
+                <div class="card-action">
+                  <button id="arenaLinkJoin" class="btn waves-effect">Join Arena</button>
                 </div>
               </div>
-
-              <div class="card-action">
-                <button id="arenaLinkJoin" class="btn waves-effect" disabled="disabled">Join Arena</button>
-              </div>
-            </div>
+            </form>
           </div>
         </div>
 
         <div id="create" class="col s12">
           <div class="card">
-            <div class="card-content">
-              <div class="card-action">
-                <button id="arenaLinkCreate" class="btn wafes-effect">Create Arena</button>
+            <form id="formCreateArena" name="formCreateArena" action="/arena" method="POST">
+              <div class="card-content">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input type="text" id="createUsername" name="username" class="validate" required placeholder="Your name / nickname" />
+                    <label for="name">Name / Nickname</label>
+                    <span id="createUsernameMessage" class="helper-text" data-error="Invalid" data-success=""></span>
+                  </div>
+                </div>
+
+                <div class="card-action">
+                  <button id="arenaLinkCreate" class="btn wafes-effect">Create Arena</button>
+                </div>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

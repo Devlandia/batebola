@@ -45,7 +45,7 @@ function arenaId(){
 $(document).ready(function(){
   const socket    = io();
   const userId    = getOrCreateCookie();
-  const userName  = 'User Name';
+  const userName  = $('#username').val();
 
   socket.emit('join game', arenaId(), userId, userName);
 
