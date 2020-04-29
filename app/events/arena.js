@@ -54,7 +54,7 @@ class Player {
 
   kick(){
     // TODO: Just for tests
-    return (rollDice() < 3)
+    return (rollDice() > 3)
   }
 
   loseBall(){
