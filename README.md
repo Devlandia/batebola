@@ -6,6 +6,8 @@ Assuming you have Docker and Docker Compose, run
 
 ```
 $ cp .env-sample .env
+$ docker-compose build
+$ docker-compose run --rm app npx sequelize db:create
 $ docker-compose up
 ```
 
