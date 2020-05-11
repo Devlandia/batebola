@@ -1,11 +1,4 @@
 /**
- * Roll 1 d10
- */
-function rollDice(){
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].sample()
-}
-
-/**
  * Gives a random element from an array
  */
 Array.prototype.sample = function(){
@@ -33,7 +26,7 @@ class Player {
    */
   passBallToNext(){
     // TODO: Just for tests
-    if(rollDice() < 3){
+    if(_rollDice() < 3){
       return false;
     }
     else {
@@ -54,7 +47,7 @@ class Player {
 
   kick(){
     // TODO: Just for tests
-    return (rollDice() > 3)
+    return (_rollDice() > 3)
   }
 
   loseBall(){
@@ -107,6 +100,12 @@ class Player {
     }
   }
 
+  /**
+   * Roll 1 d10
+   */
+  _rollDice(){
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].sample()
+  }
 }
 
 class Arena {
